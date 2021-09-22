@@ -90,7 +90,7 @@ def depthFirstSearch(problem):
     """
     "*** YOUR CODE HERE ***"
     """
-    Si pongo esto el autograde me da 0
+    If i uncomment those prints i will graded with 0
     
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
@@ -154,20 +154,32 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    visited = set()
-    pQu = util.PriorityQueue()
+    visited = set() # list with all nodes visited
+    pQu = util.PriorityQueue() # Priority queue used to store all nodes
+    # Append the first node
     pQu.push((problem.getStartState(), [], 0), heuristic(problem.getStartState(), problem))
+    # Iterate until the priority queue has items
     while not pQu.isEmpty():
+        # Get actual values
         actual_node, path, cost = pQu.pop()
 
+        # check final
         if problem.isGoalState(actual_node):
             # finished
             return path
 
+        # check if node is already visited
         if not actual_node in visited:
+            # add node in visited list
             visited.add(actual_node)
+            # check successors
             for new_node, movement, new_cost in problem.getSuccessors(actual_node):
-                pQu.push((new_node, path + [movement], new_cost + cost), problem.getCostOfActions(path + [movement]) + heuristic(actual_node, problem))
+                # Add new path
+                new_path = path + [movement]
+                # Calculate the cost of the new movement
+                costMovement = problem.getCostOfActions(new_path) + heuristic(new_node, problem)
+                # Added into the priority queue
+                pQu.push((new_node, new_path, costMovement), costMovement)
 
 
 # Abbreviations
