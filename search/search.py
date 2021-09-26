@@ -98,7 +98,7 @@ def depthFirstSearch(problem):
     """
 
     st = util.Stack()
-    visited = set()
+    visited = []
     # node, path, cost
     startNode = (problem.getStartState(), [], 0)
     st.push(startNode)
@@ -110,7 +110,7 @@ def depthFirstSearch(problem):
             return path
 
         if not node in visited:
-            visited.add(node)
+            visited.append(node)
             for new_node, movement, new_cost in problem.getSuccessors(node):
                 new_state = (new_node, path + [movement], new_cost)
                 st.push(new_state)
@@ -120,7 +120,7 @@ def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     qu = util.Queue()
-    visited = set()
+    visited = []
     # node, path, cost
     startNode = (problem.getStartState(), [], 0)
     qu.push(startNode)
@@ -129,9 +129,11 @@ def breadthFirstSearch(problem):
         (node, path, cost) = qu.pop()
         if problem.isGoalState(node):
             # finished
+            print('finished', path)
             return path
+        #print(node, problem.getStartState())
         if not node in visited:
-            visited.add(node)
+            visited.append(node)
             for new_node, movement, new_cost in problem.getSuccessors(node):
                 new_state = (new_node, path + [movement], new_cost)
                 qu.push(new_state)
@@ -154,8 +156,8 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    visited = set() # list with all nodes visited
-    pQu = util.PriorityQueue() # Priority queue used to store all nodes
+    visited = []  # list with all nodes visited
+    pQu = util.PriorityQueue()  # Priority queue used to store all nodes
     # Append the first node
     pQu.push((problem.getStartState(), [], 0), heuristic(problem.getStartState(), problem))
     # Iterate until the priority queue has items
@@ -171,7 +173,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         # check if node is already visited
         if not actual_node in visited:
             # add node in visited list
-            visited.add(actual_node)
+            visited.append(actual_node)
             # check successors
             for new_node, movement, new_cost in problem.getSuccessors(actual_node):
                 # Add new path

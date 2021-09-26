@@ -305,14 +305,16 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.startingPosition, []
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # See all corners
+        actual_node = state[0]  # get actual node
+        actual_corners = state[1]  # get corners visited
+        return len(actual_corners) == 4  # if we already visited all the corners this will return true
 
     def getSuccessors(self, state):
         """
@@ -324,7 +326,8 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
-
+        x, y = state[0]  # Actual position
+        actual_corners = state[1]  # get corners visited
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
@@ -333,8 +336,19 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
-
             "*** YOUR CODE HERE ***"
+            dx, dy = Actions.directionToVector(action)  # position to movement
+            nextx, nexty = int(x + dx), int(y + dy)  # final position
+            if not self.walls[nextx][nexty]:  # look if we hit a wall
+                new_node = (nextx, nexty)
+                corner_list = actual_corners
+                # check if new node is a corner
+                if new_node in self.corners:
+                    if new_node not in actual_corners:
+                        corner_list = corner_list + [new_node]
+                        # actual_corners.append(new_node)
+
+                successors.append(((new_node, corner_list), action, 1))
 
         self._expanded += 1  # DO NOT CHANGE
         return successors
@@ -368,9 +382,27 @@ def cornersHeuristic(state, problem):
     """
     corners = problem.corners  # These are the corner coordinates
     walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
-
     "*** YOUR CODE HERE ***"
-    return 0  # Default to trivial solution
+    if problem.isGoalState(state):  # Check if we are in the goal state
+        return 0
+
+    actual_corners = state[1]  # Get actual corners
+    aux_corner = [corner for corner in corners if corner not in actual_corners]  # Get corners not visited
+
+    total_cost = 0
+    actual_node = state[0]
+    pos = None  # Corner actual
+    while len(aux_corner) > 0:  # Iterate over all corner not visited
+        min_dist = 99999  # Min dist initial
+        for corner in aux_corner:
+            distance = util.manhattanDistance(actual_node, corner)  # Calculate distance from the point to the corner
+            if min_dist > distance:  # If the actual distance is less than the min dist, we change it
+                min_dist = distance
+                pos = corner  # Change the corner to later remove it
+        total_cost += min_dist  # Sum all the costs
+        actual_node = pos  # Change the actual node
+        aux_corner.remove(pos)  # Remove the corner
+    return abs(total_cost)  # Default to trivial solution
 
 
 class AStarCornersAgent(SearchAgent):
@@ -471,7 +503,34 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    if problem.isGoalState(state):  # Check if we are in the goal state
+        return 0
+
+    foods = foodGrid.asList()  # Get list of foods
+
+    total = 0  # Final value
+    pos = None  # Position where the food is
+    for x in foods:  # Iterate over all the foods
+        min_dist = 99999  # Min distance to compare
+        for food in foods:
+            # Iterate over all the foods, again, but its necessary because at the end of loop
+            # we remove the food found
+            # Get the distance from the actual point to the food
+            dist = util.manhattanDistance(position, food)
+
+            # if this distance is less than the min dist, change it
+            if dist < min_dist:
+                min_dist = dist
+                pos = food
+        # sum all the min dist
+        total += min_dist
+        # change position
+        position = pos
+
+        # remove the actual food founded
+        foods.remove(pos)
+
+    return total
 
 
 class ClosestDotSearchAgent(SearchAgent):
