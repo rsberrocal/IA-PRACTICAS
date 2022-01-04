@@ -141,7 +141,8 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
-        # TODO Entender la formula
+        # Apply formula
+        # Q(s,a) <- (1 - alpha)Q(s,a) + alpha [sample]
         self.QValues[state, action] = (1 - self.alpha) * self.getQValue(state, action) + self.alpha * \
                                       (reward + self.discount * self.getValue(nextState))
 
